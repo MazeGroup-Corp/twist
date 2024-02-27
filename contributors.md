@@ -15,6 +15,7 @@ Find all Twist contributors from the most important to the least
 ## Principal contributors :
 
 Genius_um : Administator and project manager
+
 Rayanis55 : Administrator and project manager
 
 ## Great contributors :
