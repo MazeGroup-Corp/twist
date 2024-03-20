@@ -1,19 +1,69 @@
 <?php
 
 session_start();
-
-if (isset($_SESSION['connected'])) {
-    if ($_SESSION['connected'] == true) {
-    } else {
-        header("Location: ../");
-    }
-} else {
-    header("Location: ../");
-}
+error_reporting(0);
 
 ?>
 
-<?php include '../connect.php'; ?>
+<?php 
+
+require '../connect.php';
+
+
+if(isset($_SESSION["connected"])){
+    if($_SESSION["connected"] == TRUE){
+        $sql = "SELECT blocked FROM users WHERE id = ". $_SESSION['id'] ."";
+        $resultat = $conn->query($sql);
+        if ($resultat->num_rows > 0) {
+            $row = $resultat->fetch_assoc();
+            if ($row['blocked'] == 1) {
+                header("Location: ../blocked.php");
+                exit();
+            }
+        }
+    }
+}
+
+$ip = $_SERVER['REMOTE_ADDR'];
+
+$checkIP = "SELECT * FROM ip WHERE ip='$ip'";
+$ipresult = $conn->query($checkIP);
+
+if($_GET['id']){
+    if($_GET['id'] == "-1"){
+        $_SESSION['no_account'] == TRUE;
+    }
+}
+
+if(!isset($_SESSION['no_account'])){
+    if(!isset($_GET['id'])){
+        if(!isset($_SESSION['connected'])){
+            if ($ipresult->num_rows > 0){
+                $row = $ipresult->fetch_assoc();
+                header("Location: ../auto/connexion.php");
+            }
+        }
+    } else {
+        $recup_id = $_GET['id'];
+        $usersql = "SELECT * FROM users WHERE id='$recup_id'";
+        $checkResult = $conn->query($usersql);
+        $row = $checkResult->fetch_assoc();
+        if($checkResult->num_rows > 0){
+            $_SESSION['connected'] = true;
+            $_SESSION['username'] = $row['username'];
+            $_SESSION['password'] = $row['password'];
+            $_SESSION['biography'] = $row['biography'];
+            $_SESSION['admin'] = $row['admin'];
+            $_SESSION['country'] = $row['country'];
+            $_SESSION['id'] = $row['id'];
+            $_SESSION['email'] = $row['email'];
+            $_SESSION['creation_date'] = $row['creation_date'];
+            $_SESSION['company_id'] = $row['company_id'];
+        }
+    }
+}
+
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -82,19 +132,23 @@ if (isset($_SESSION['connected'])) {
 
         <div class="page">
             <h1 style="text-transform: capitalize;">
-                <?php echo "Hello, " . $_SESSION['username']; ?>
+                <?php if(isset($_SESSION["connected"])){ echo $ts_hello; } ?>
             </h1>
             <hr>
             <div class="sections">
+                <?php
+                if (isset($_SESSION['connected'])) {
+                if ($_SESSION['connected'] == true) {
+                ?>
                 <div class="part2 _">
                     <div class="insight-post-section">
-                        <h2>Post a Insight :</h2>
+                        <h2><?php echo $ts_post_insight ?> :</h2>
 
                         <form method="POST" action="/home/act.php">
                             <label for="text">Insight text :</label><br>
-                            <input type="text" id="text" required name="text" minlength="3" maxlength="80"
-                                placeholder="Lenght : 3 to 80" class="glass"><br>
-                            <button type="sumbit" name="insight_post" class="glass">Post</button>
+                            <input type="text" id="text" required name="text" minlength="3" maxlength="160"
+                                placeholder="Lenght : 3 to 160" class="glass"><br>
+                            <button type="sumbit" name="insight_post" class="glass"><?php echo $ts_post ?></button>
                             <?php
                             if (isset($_GET['ins_inp_err'])) {
                                 $err = htmlspecialchars($_GET['ins_inp_err']);
@@ -103,7 +157,7 @@ if (isset($_SESSION['connected'])) {
                                     case 'len_text':
                                         ?>
                                         <red>
-                                            The text lenght must be between 3 and 80 characters
+                                            The text lenght must be between 3 and 160 characters
                                         </red>
                                         <?php
                                         break;
@@ -114,17 +168,17 @@ if (isset($_SESSION['connected'])) {
                     </div>
                     <br>
                     <div class="twist-post-section">
-                        <h2>Post a Twist :</h2>
+                        <h2><?php echo $ts_post_twist ?> :</h2>
 
                         <form method="POST" action="/home/act.php">
                             <label for="text">Post text :</label><br>
-                            <textarea cols="24" rows="4" id="text" required name="text" minlength="3" maxlength="200"
-                                placeholder="Lenght : 3 to 200" class="glass"></textarea><br>
-                            <button type="sumbit" name="twist_post" class="glass">Post</button>
+                            <textarea cols="24" rows="4" id="text" required name="text" minlength="3" maxlength="400"
+                                placeholder="Lenght : 3 to 400" class="glass"></textarea><br>
+                            <button type="sumbit" name="twist_post" class="glass"><?php echo $ts_post ?></button>
                             <?php
                             if ($_SESSION['company_id'] != 0) {
                                 ?>
-                                <button type="sumbit" name="twist_post_cy" class="glass">Post as a company</button>
+                                <button type="sumbit" name="twist_post_cy" class="glass"><?php echo $ts_post_as_company ?></button>
                                 <?php
                             }
                             if (isset($_GET['post_inp_err'])) {
@@ -134,7 +188,7 @@ if (isset($_SESSION['connected'])) {
                                     case 'len_text':
                                         ?>
                                         <red>
-                                            The text lenght must be between 3 and 200 characters
+                                            The text lenght must be between 3 and 400 characters
                                         </red>
                                         <?php
                                         break;
@@ -144,8 +198,30 @@ if (isset($_SESSION['connected'])) {
                         </form>
                     </div>
                 </div>
+                <?php }}else{
+                    ?>
+                <div class="part2 _">
+                    <div class="twist-post-section">
+                        <h2>Enjoy Twist to the fullest!</h2>
+                        <p>
+                            Use the most functionality that Twist offers:<br>
+                            - To see post Twists and replies <br>
+                            - Personalized your profile (username, biography, logo) <br>
+                            - Share things with the community! <br>
+                            Twist is updated regularly, updates appear every week, hoping that you will like them, <br>
+                            that's why we advise you to create an account and start being one of the real ones in the Twist community
+                        </p>
+                        <br>
+                        <a href='../welcome/'><button style='border-radius: 3px 0px 0px 3px; margin-right: 0px;'>Register / Login</button></a>
+                    </div>
+                </div>
+                <?php
+                $_SESSION['username'] = "Invited";
+                $_SESSION['company_id'] = "0";
+                }
+                ?>
                 <div class="part1">
-                    <h2>Recommanded accounts :</h2>
+                    <h2><?php echo $ts_recommanded_accounts ?> :</h2>
                     <div class="accounts_list">
                             <?php
 
@@ -201,11 +277,11 @@ if (isset($_SESSION['connected'])) {
                                             <?php
                                             if ($checkResult->num_rows > 0) {
                                                 echo "<a href='../home/follow.php?to_id=" . $user__id . "'><button
-                                                style='border-radius: 3px 0px 0px 3px; margin-left: -1px; color: #121212;' class='disabled'>Followed</button></a><button class='disabled'
+                                                style='border-radius: 3px 0px 0px 3px; margin-left: -1px; color: #121212;' class='disabled'>$ts_followed</button></a><button class='disabled'
                                                     style='border-radius: 0px 3px 3px 0px; margin-left: -3px; color: #121212;'>$follows_count</button>";
                                             } else {
                                                 echo "<a href='../home/follow.php?to_id=" . $user__id . "'><button
-                                                style='border-radius: 3px 0px 0px 3px; margin-left: -1px; color: #121212;'>Follow</button></a><button class='disabled'
+                                                style='border-radius: 3px 0px 0px 3px; margin-left: -1px; color: #121212;'>$ts_follow</button></a><button class='disabled'
                                                     style='border-radius: 0px 3px 3px 0px; margin-left: -3px; color: #121212;'>$follows_count</button>";
                                             }
                                             ?>
@@ -221,7 +297,7 @@ if (isset($_SESSION['connected'])) {
                     <br>
                     <hr><br>
                     <!-- Recents Twists -->
-                    <h2>Recents Twists :</h2>
+                    <h2><?php echo $ts_recents_twists ?> :</h2>
                     <div class="twists-list">
                         <?php
                         $sql = "SELECT user_id, enterprise_id, text, datetime, id, reply_to FROM posts ORDER BY datetime DESC LIMIT 8";
@@ -263,9 +339,9 @@ if (isset($_SESSION['connected'])) {
                                                 $countStmt->fetch();
                                                 $countStmt->close();
                                                 if ($checkResult->num_rows > 0) {
-                                                    echo "<a href='../home/follow.php?to_id=" . $id . "'><button class='disabled' style='border-radius: 3px 0px 0px 3px; margin-right: 0px;'>Followed</button></a><button class='disabled' style='border-radius: 0px 3px 3px 0px; margin-left: -1px; color: #121212;'>" . $follows_count . "</button>";
+                                                    echo "<a href='../home/follow.php?to_id=" . $id . "'><button class='disabled' style='border-radius: 3px 0px 0px 3px; margin-right: 0px;'>$ts_followed</button></a><button class='disabled' style='border-radius: 0px 3px 3px 0px; margin-left: -1px; color: #121212;'>" . $follows_count . "</button>";
                                                 } else {
-                                                    echo "<a href='../home/follow.php?to_id=" . $id . "'><button style='border-radius: 3px 0px 0px 3px; margin-right: 0px;'>Follow</button></a><button class='disabled' style='border-radius: 0px 3px 3px 0px; margin-left: -1px; color: #121212;'>" . $follows_count . "</button>";
+                                                    echo "<a href='../home/follow.php?to_id=" . $id . "'><button style='border-radius: 3px 0px 0px 3px; margin-right: 0px;'>$ts_follow</button></a><button class='disabled' style='border-radius: 0px 3px 3px 0px; margin-left: -1px; color: #121212;'>" . $follows_count . "</button>";
                                                 } ?>
                                             </h3>
                                         </a>
@@ -308,7 +384,8 @@ if (isset($_SESSION['connected'])) {
                         ?>
                     </div><br>
                     <hr><br>
-                    <h2>Most liked Twists :</h2>
+                    <script src="//servedby.eleavers.com/ads/ads.php?t=Mjk4NjM7MjAxMzE7aG9yaXpvbnRhbC5iYW5uZXI=&index=1"></script>
+                    <h2><?php echo $ts_liked_twists ?> :</h2>
                     <div class="twists-list">
                         <?php
                         $sql_most_liked = "SELECT p.user_id, p.enterprise_id, p.text, p.datetime, p.id, p.reply_to, COUNT(l.id) AS like_count
@@ -356,9 +433,9 @@ if (isset($_SESSION['connected'])) {
                                                 $countStmt->fetch();
                                                 $countStmt->close();
                                                 if ($checkResult->num_rows > 0) {
-                                                    echo "<a href='../home/follow.php?to_id=" . $id . "'><button class='disabled' style='border-radius: 3px 0px 0px 3px; margin-right: 0px;'>Followed</button></a><button class='disabled' style='border-radius: 0px 3px 3px 0px; margin-left: -1px; color: #121212;'>" . $follows_count . "</button>";
+                                                    echo "<a href='../home/follow.php?to_id=" . $id . "'><button class='disabled' style='border-radius: 3px 0px 0px 3px; margin-right: 0px;'>$ts_followed</button></a><button class='disabled' style='border-radius: 0px 3px 3px 0px; margin-left: -1px; color: #121212;'>" . $follows_count . "</button>";
                                                 } else {
-                                                    echo "<a href='../home/follow.php?to_id=" . $id . "'><button style='border-radius: 3px 0px 0px 3px; margin-right: 0px;'>Follow</button></a><button class='disabled' style='border-radius: 0px 3px 3px 0px; margin-left: -1px; color: #121212;'>" . $follows_count . "</button>";
+                                                    echo "<a href='../home/follow.php?to_id=" . $id . "'><button style='border-radius: 3px 0px 0px 3px; margin-right: 0px;'>$ts_follow</button></a><button class='disabled' style='border-radius: 0px 3px 3px 0px; margin-left: -1px; color: #121212;'>" . $follows_count . "</button>";
                                                 } ?>
                                             </h3>
                                         </a>
@@ -401,7 +478,7 @@ if (isset($_SESSION['connected'])) {
                         ?>
                     </div><br>
                     <hr><br>
-                    <h2>Most active accounts :</h2>
+                    <h2><?php echo $ts_active_accounts ?> :</h2>
                     <div class="accounts_list">
                         <?php
                         $sql_most_active = "SELECT u.id, u.username, u.picture, u.badge_official, u.badge_certif, u.badge_vip, COUNT(p.id) AS post_count
@@ -451,7 +528,7 @@ if (isset($_SESSION['connected'])) {
                     </div>
                     <br>
                     <hr><br>
-                    <h2>Most replied Twists :</h2>
+                    <h2><?php echo $ts_reply_twists ?> :</h2>
                     <div class="twists-list">
                         <?php
                         $sql_most_liked = "SELECT p.user_id, p.enterprise_id, p.text, p.datetime, p.id, p.reply_to, COUNT(l.id) AS reply_count
@@ -499,9 +576,9 @@ if (isset($_SESSION['connected'])) {
                                                 $countStmt->fetch();
                                                 $countStmt->close();
                                                 if ($checkResult->num_rows > 0) {
-                                                    echo "<a href='../home/follow.php?to_id=" . $id . "'><button class='disabled' style='border-radius: 3px 0px 0px 3px; margin-right: 0px;'>Followed</button></a><button class='disabled' style='border-radius: 0px 3px 3px 0px; margin-left: -1px; color: #121212;'>" . $follows_count . "</button>";
+                                                    echo "<a href='../home/follow.php?to_id=" . $id . "'><button class='disabled' style='border-radius: 3px 0px 0px 3px; margin-right: 0px;'>$ts_followed</button></a><button class='disabled' style='border-radius: 0px 3px 3px 0px; margin-left: -1px; color: #121212;'>" . $follows_count . "</button>";
                                                 } else {
-                                                    echo "<a href='../home/follow.php?to_id=" . $id . "'><button style='border-radius: 3px 0px 0px 3px; margin-right: 0px;'>Follow</button></a><button class='disabled' style='border-radius: 0px 3px 3px 0px; margin-left: -1px; color: #121212;'>" . $follows_count . "</button>";
+                                                    echo "<a href='../home/follow.php?to_id=" . $id . "'><button style='border-radius: 3px 0px 0px 3px; margin-right: 0px;'>$ts_follow</button></a><button class='disabled' style='border-radius: 0px 3px 3px 0px; margin-left: -1px; color: #121212;'>" . $follows_count . "</button>";
                                                 } ?>
                                             </h3>
                                         </a>

@@ -1,9 +1,23 @@
+<?php
+include "connect.php";
+
+session_start();
+$sql = "SELECT blocked FROM users WHERE id = ". $_SESSION['id'] ."";
+$resultat = $conn->query($sql);
+if ($resultat->num_rows > 0) {
+    $row = $resultat->fetch_assoc();
+    if ($row['blocked'] == 0) {
+        header("Location: ../home/");
+        exit();
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>404 Error - Twist</title>
+        <title>Account Blocked - Twist</title>
         <?php require "style.php"; ?>
         <link rel="shortcut icon" href="/assets/icon_v1.png" type="image/x-icon">
     </head>
@@ -12,13 +26,13 @@
             <div class="block navbar" style="width: 100%;">
                 <div class="left flex">
                     <a href="../"><img src="../assets/logo_v1.png" alt="Twist Logo" class="logo"></a>
-                    <h3 class="title">404 Error</h3>
                 </div>
             </div>
             <div style="text-align: center;">
-                <h1>404 Error</h1>
-                <h3>The page you are looking for probably does not exist or move or delete!</h3>
-                <a href="home/">Return home</a>
+                <h1>Account Bloked</h1>
+                <h3>Your account is blocked !<br>
+                For more information contact our on <a href="mailto:support@mazegroup.org">support@mazegroup.org</a></h3>
+                <a href="logout.php">Logout</a>
             </div>
             <hr>
             <footer>

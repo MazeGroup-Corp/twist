@@ -9,8 +9,13 @@ if ($_SESSION['id'] == $_GET['id']) {
             $er = false;
             $username_len = strlen(htmlspecialchars($_POST['username']));
             $username = htmlspecialchars($_POST['username']);
-            $biography = htmlspecialchars(htmlspecialchars($_POST['biography']));
+            if ($_SESSION['admin'] == 1){
+                $biography = $_POST['biography'];
+                $biography_len = strlen($_POST['biography']);
+            }else{
+            $biography = htmlspecialchars($_POST['biography']);
             $biography_len = strlen(htmlspecialchars($_POST['biography']));
+            }
             if ($username_len >= 3 && $username_len <= 16){} else {
                 $er = true;
                 header("Location: .?account_edit_err=len_username?id=".$_SESSION['id']."");
@@ -41,14 +46,19 @@ if ($_SESSION['id'] == $_GET['id']) {
                     }
 
                     if ($er == false){
+                        $country = $_POST['country'];
                         $updateQuery = "UPDATE users SET username='$username' WHERE id=" . $_SESSION['id'];
                         $result = mysqli_query($conn, $updateQuery);
                         
                         $updateQuery = "UPDATE users SET biography='$biography' WHERE id=" . $_SESSION['id'];
                         $result = mysqli_query($conn, $updateQuery);
+                        
+                        $updateQuery = "UPDATE users SET country='$country' WHERE id=" . $_SESSION['id'];
+                        $result = mysqli_query($conn, $updateQuery);
 
                         $_SESSION['username'] = $username;
                         $_SESSION['biography'] = $biography;
+                        $_SESSION['country'] = $country;
                         header("Location: .?id=".$_SESSION['id']."");
                     }
                 }

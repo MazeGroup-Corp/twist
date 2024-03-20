@@ -4,36 +4,42 @@
 
 session_start();
 
-if (isset($_SESSION['connected'])) {
-    if ($_SESSION['connected'] == true) {
-    } else {
-        header("Location: ../");
-    }
-} else {
-    header("Location: ../");
-}
-
 // Query
 
 $id_txt = "";
-$query = "SELECT username, biography, creation_date, id, visits, picture, badge_vip, badge_certif, badge_official, company_id FROM users WHERE id = ?";
+$query = "SELECT username, biography, creation_date, id, visits, picture, badge_vip, badge_certif, badge_official, company_id, blocked, admin FROM users WHERE id = ?";
 $stmt = $conn->prepare($query);
 $stmt->bind_param("i", $_GET["id"]);
 $stmt->execute();
-$stmt->bind_result($u_username, $u_biography, $u_creation_date, $u_id, $u_visits, $u_picture, $u_vip, $u_certif, $u_official, $u_company_id);
+$stmt->bind_result($u_username, $u_biography, $u_creation_date, $u_id, $u_visits, $u_picture, $u_vip, $u_certif, $u_official, $u_company_id, $u_blocked, $u_admin);
 $stmt->fetch();
 $stmt->close();
 $u_visits = $u_visits + 1;
 $updateSql = "UPDATE `users` SET visits = $u_visits WHERE id = " . $u_id;
 $conn->query($updateSql);
-$query = "SELECT username, biography, creation_date, id, visits, picture, badge_vip, badge_certif, badge_official, company_id FROM users WHERE id = ?";
+$query = "SELECT username, biography, creation_date, id, visits, picture, badge_vip, badge_certif, badge_official, company_id, blocked FROM users WHERE id = ?";
 $stmt = $conn->prepare($query);
 $stmt->bind_param("i", $_SESSION['id']);
 $stmt->execute();
-$stmt->bind_result($username, $biography, $creation_date, $id, $visits, $picture, $vip, $certif, $official, $company_id);
+$stmt->bind_result($username, $biography, $creation_date, $id, $visits, $picture, $vip, $certif, $official, $company_id, $blocked);
 $stmt->fetch();
 $stmt->close();
 
+?>
+<?php
+if (isset($_SESSION['connected'])) {
+    if ($_SESSION['connected'] == true) {
+        $sql = "SELECT blocked FROM users WHERE id = ". $_SESSION['id'] ."";
+        $resultat = $conn->query($sql);
+        if ($resultat->num_rows > 0) {
+            $row = $resultat->fetch_assoc();
+            if ($row['blocked'] == 1) {
+                header("Location: ../blocked.php");
+                exit();
+            }
+        }
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -54,7 +60,10 @@ $stmt->close();
             <div class="fullbox">
                 <div class="img-box">
                     <img class="pic" src="<?php 
-                                        if (!empty($u_picture)) {
+                                        if ($u_blocked == 1){
+                                            echo "../assets/accb.png";
+                                        }
+                                        else if (!empty($u_picture)) {
                                             echo "data:image/jpeg;base64," . base64_encode($u_picture);
                                         } else {
                                             echo "../assets/default_pic.png";
@@ -65,7 +74,11 @@ $stmt->close();
                     <?php if ($u_official) { echo '<div class="badge-official"></div>';} ?>
                 </div>
                 <h1 class="username" style="text-transform: capitalize;">
-                    <?php echo htmlspecialchars($u_username);?>
+                    <?php 
+                    echo htmlspecialchars($u_username);
+                    if ($u_blocked == 1){
+                        echo "<p style='color: red;'><bold>This account is blocked !</bold></p>";
+                    }?>
                     <?php if ($u_company_id != 0){
                         $companySQL = "SELECT name FROM companies WHERE id = ?";
                         $crequest = $conn->prepare($companySQL);
@@ -95,8 +108,8 @@ $stmt->close();
                         $countStmt->fetch();
                         $countStmt->close();
 
-                        echo $follows_count;
-                        ?> follower(s)
+                        echo "".$follows_count." ".$ts_followed."(s)";
+                        ?>
                     </h3>
                     <?php
                     $checkQuery = "SELECT * FROM follows WHERE from_id = ? AND to_id = ?";
@@ -106,9 +119,9 @@ $stmt->close();
                     $checkResult = $checkStmt->get_result();
 
                     if ($checkResult->num_rows > 0) {
-                        echo "<a href='../account/follow.php?to_id=" . $u_id . "'><button class='follow_button disabled'>Followed</button></a>";
+                        echo "<a href='../account/follow.php?to_id=" . $u_id . "'><button class='follow_button disabled'>$ts_followed</button></a>";
                     } else {
-                        echo "<a href='../account/follow.php?to_id=" . $u_id . "'><button class='follow_button disable'>Follow</button></a>";
+                        echo "<a href='../account/follow.php?to_id=" . $u_id . "'><button class='follow_button disable'>$ts_follow</button></a>";
                     }
                     ?>
                 </div>
@@ -123,6 +136,9 @@ $stmt->close();
                     <h2 style="text-transform: capitalize;">All
                         <?php echo htmlspecialchars($u_username); ?>'s Twists :
                     </h2>
+                    <?php if ($u_blocked == 1){
+                        echo "<h3 style='color: red;'><bold>This account is blocked !</bold></h3>";
+                        }?>
                     <div class="twists-list">
                         <?php
                         $sql = "SELECT user_id, text, datetime, id, reply_to FROM posts WHERE user_id = '" . $_GET["id"] . "' ORDER BY datetime DESC";
@@ -171,9 +187,9 @@ $stmt->close();
                                             $checkResult = $checkStmt->get_result();
 
                                             if ($checkResult->num_rows > 0) {
-                                                echo "<a href='../account/follow.php?to_id=" . $u_id . "'><button class='disabled'>Followed</button></a>";
+                                                echo "<a href='../account/follow.php?to_id=" . $u_id . "'><button class='disabled'>$ts_followed</button></a>";
                                             } else {
-                                                echo "<a href='../account/follow.php?to_id=" . $u_id . "'><button>Follow</button></a>";
+                                                echo "<a href='../account/follow.php?to_id=" . $u_id . "'><button>$ts_follow</button></a>";
                                             }
                                             ?>
                                         </h3>
@@ -219,8 +235,8 @@ $stmt->close();
                     </div>
                 </div>
                 <div class="part2">
-                    <div class="side-section">
-                        <h2>Account info :</h2>
+                    <div class="side-section twist-post-section">
+                        <h2><?php echo $ts_account_info ?></h2>
                         <?php
                         $query = "SELECT COUNT(*) FROM posts WHERE user_id = ?";
 
@@ -251,34 +267,44 @@ $stmt->close();
 
                         $countStmt->close();
                         ?>
-                        <p>Total Twists posted :
+                        <?php if ($u_blocked == 1){
+                        echo "<p style='color: red;'><bold>This account is blocked !</bold></p>";
+                        }?>
+                        <p><?php echo $ts_total_posts_account ?> :
                             <?php echo $nbPosts; ?>
                         </p>
-                        <p>Total likes :
+                        <p><?php echo $ts_total_likes_account ?> :
                             <?php echo $total_likes_count; ?>
                         </p>
-                        <p>Total account visits :
+                        <p><?php echo $ts_total_visits_account ?> :
                             <?php echo $u_visits; ?>
                         </p>
                     </div>
                     <br>
                     <?php
                     if ($_SESSION['id'] == $_GET['id']) { ?>
-                    <div class="side-section">
-                        <h2>Edit account :</h2>
+                    <div class="side-section twist-post-section">
+                        <h2><?php echo $ts_edit_account ?></h2>
                         <?php echo '<form method="POST" action="edit.php?id='.$_GET["id"].'" enctype="multipart/form-data">' ?>
-                            <label for="username">Username :</label>
+                            <label for="username"><?php echo $ts_username ?> :</label><br>
                             <input type="text" name="username" id="username" maxlength="16" minlength="3"
                                 placeholder="Lenght : 3 to 16, in lowercase" required class="lower"
-                                value="<?php echo htmlspecialchars($username); ?>">
-                            <label for="biography">Biography :</label>
+                                value="<?php echo htmlspecialchars($username); ?>"><br>
+                            <label for="biography"><?php echo $ts_biography ?> :</label><br>
                             <textarea name="biography" id="biography" maxlength="200"
                                 style="max-width: calc(100% - 20px)"
-                                placeholder="Lenght : 200 max"><?php echo $biography; ?></textarea>
-                            <label for="profile_pic">Profile picture :</label>
+                                placeholder="Lenght : 200 max"><?php echo $biography; ?></textarea><br>
+                            <label for="profile_pic"><?php echo $ts_picture_account ?> :</label>
                             <input type="file" style="width: calc(100% - 20px);" name="profile_pic" id="profile_pic"
-                                accept="image/png, image/jpeg">
-                            <button type="sumbit" name="edit_account">Post</button>
+                                accept="image/png, image/jpeg"><br>
+                            <label for="country"><?php echo $ts_country ?></label><br>
+                            <select name="country">
+                               <option selected value="<?php $_SESSION['country'] ?>"><?php echo $_SESSION['country'] ?></option>
+                               <hr>
+                               <option value="EN">EN</option>
+                               <option value="FR">FR</option>
+                            </select><br>
+                            <button type="sumbit" name="edit_account"><?php echo $ts_post ?></button>
                             <?php
                             if (isset($_GET['account_edit_err'])) {
                                 $err = htmlspecialchars($_GET['account_edit_err']);
@@ -316,6 +342,18 @@ $stmt->close();
                             }
                             ?>
                         </form>
+                    </div>
+                    <?php } ?>
+                    <br>
+                    <?php
+                    if ($_SESSION['admin'] == 1 && $u_admin == 0) { ?>
+                    <div class="side-section twist-post-section">
+                        <h2>Admin pannel :</h2>
+                        <?php if ($u_blocked == 0){
+                            echo '<a href="blocked.php?id='.$_GET["id"].'"><button class="disable">Block</button></a>';
+                        } else {
+                            echo '<a href="unblocked.php?id='.$_GET["id"].'"><button class="disable">Unblock</button></a>';
+                        }?>
                     </div>
                     <?php } ?>
                 </div>

@@ -59,7 +59,12 @@ if (isset($_POST['signup'])){
                             $_SESSION['email'] = $row['email'];
                             $_SESSION['admin'] = $row['admin'];
                             $_SESSION['creation_date'] = $row['creation_date'];
-                            header("Location: ../");
+                            $account_id = $row['id'];
+                            $ip = $_SERVER['REMOTE_ADDR'];
+                            $sql = "INSERT INTO ip (ip, account_id) VALUES ('$ip', '$account_id')";
+                            $result = $conn->query($sql);
+                            header("Location: ../home/");
+                            header("Location: ../welcome/");
                         }else{
                             header("Location: .?1_err=_");
                         }
@@ -78,6 +83,7 @@ if (isset($_POST['signup'])){
         $er = false;
         $password = sha1($_POST['password']);
         $checkUsername = "SELECT * FROM users WHERE username='$username'";
+        
         $checkResult = $conn->query($checkUsername);
         $row = $checkResult->fetch_assoc();
 
@@ -92,11 +98,27 @@ if (isset($_POST['signup'])){
                     $_SESSION['password'] = $row['password'];
                     $_SESSION['biography'] = $row['biography'];
                     $_SESSION['admin'] = $row['admin'];
+                    $_SESSION['country'] = $row['country'];
                     $_SESSION['id'] = $row['id'];
                     $_SESSION['email'] = $row['email'];
                     $_SESSION['creation_date'] = $row['creation_date'];
                     $_SESSION['company_id'] = $row['company_id'];
-                    header("Location: ../");
+                    
+                    // AUTO CONNEXION
+                    
+                    $account_id = $row['id'];
+                    $ip = $_SERVER['REMOTE_ADDR'];
+                    
+                    $sql = "SELECT * FROM ip WHERE ip='$ip' AND account_id=$account_id";
+                    $result = $conn->query($sql);
+                    
+                    if($result->num_rows > 0){
+                        header("Location: ../home/");
+                    }else{
+                        $sql = "INSERT INTO ip (ip, account_id) VALUES ('$ip', '$account_id')";
+                        $result = $conn->query($sql);
+                        header("Location: ../home/");
+                    }
                 } else {
                     header("Location: .?2_err=bad_password");
                 }

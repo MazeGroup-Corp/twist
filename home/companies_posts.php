@@ -25,7 +25,7 @@ if(isset($_SESSION['connected'])) {
     </head>
     <body>
         <div id="container">
-            <?php include '../assets/navbar.php' ?>
+            <?php include '../components/navbar.php' ?>
             <div class="updates-bar">
                 <marquee direction="left" scrollamount="3">Twist updates & news (now to old)
                     <?php

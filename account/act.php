@@ -11,6 +11,7 @@ if (isset($_POST['edit_account'])){
         $username = $_POST['username'];
         $biography = $_POST['biography'];
         $biography_len = strlen($_POST['biography']);
+        $country = $_GET['country'];
         if ($username_len >= 3 && $username_len <= 16){} else {
             $er = true;
             header("Location: .?account_edit_err=len_username");
@@ -46,6 +47,9 @@ if (isset($_POST['edit_account'])){
                     
                     $updateQuery = "UPDATE users SET biography='$biography' WHERE id=" . $_SESSION['id'];
                     $result = mysqli_query($conn, $updateQuery);
+                    
+                    $updateQuery = "UPDATE users SET country='$country' WHERE id=" . $_SESSION['id'];
+                    $result = mysqli_query($conn, $updateQuery);
 
                     $_SESSION['username'] = $username;
                     $_SESSION['biography'] = $biography;
@@ -55,3 +59,15 @@ if (isset($_POST['edit_account'])){
         }
     }
 }
+?>
+<?php
+$sql = "SELECT blocked FROM users WHERE id = ". $_SESSION['id'] ."";
+$resultat = $conn->query($sql);
+if ($resultat->num_rows > 0) {
+    $row = $resultat->fetch_assoc();
+    if ($row['blocked'] == 1) {
+        header("Location: ../blocked.php");
+        exit();
+    }
+}
+?>

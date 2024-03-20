@@ -17,3 +17,15 @@ if (isset($_GET["post_id"])) {
         header("Location: ../home/");
     }
 }
+?>
+<?php
+$sql = "SELECT blocked FROM users WHERE id = ". $_SESSION['id'] ."";
+$resultat = $conn->query($sql);
+if ($resultat->num_rows > 0) {
+    $row = $resultat->fetch_assoc();
+    if ($row['blocked'] == 1) {
+        header("Location: ../blocked.php");
+        exit();
+    }
+}
+?>

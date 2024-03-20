@@ -2,8 +2,12 @@
 
 if(isset($_SESSION['connected'])) {
     if ($_SESSION['connected'] == true){
-        header("Location: ../home");
+        header("Location: ../auto/connexion.php");
     }
+}
+
+if(!isset($_GET["add_account"])){
+    
 }
 
 ?>

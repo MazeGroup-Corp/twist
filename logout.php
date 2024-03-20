@@ -1,15 +1,15 @@
 <?php
 
 session_start();
+include "connect.php";
 
-unset($_SESSION['connected']);
-unset($_SESSION['username']);
-unset($_SESSION['password']);
-unset($_SESSION['biography']);
-unset($_SESSION['id']);
-unset($_SESSION['email']);
-unset($_SESSION['creation_date']);
+$id = $_SESSION['id'];
+$ip = $_SERVER['REMOTE_ADDR'];
 
-header("Location: ./")
+$result = $conn->prepare("DELETE FROM ip WHERE account_id = ? AND ip = ?"); 
+$result->bind_param("ss", $id, $ip);
+$result->execute();
+
+header("Location: welcome/")
 
 ?>
