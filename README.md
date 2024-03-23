@@ -17,11 +17,9 @@ We think that making the Twist project open source will allow anyone to use cert
 - Rayanis55 : Administrator and Managment projects
 
 ## 🔗 Links : 
-[Twist](https://github.com/MazeGroup-Corp/twist-api)
-
-[Twist API](https://twist.mazegroup.org/)
-
-[MazeGroup](https://mazegroup.org/)
+[Twist Website](https://github.com/MazeGroup-Corp/twist-api) \
+[Twist API (Using Python)](https://twist.mazegroup.org/) \
+[MazeGroup Website](https://mazegroup.org/)
 
 ## 📧 Mail :
 - Twist : twist@mazegroup.org
