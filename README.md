@@ -30,10 +30,10 @@ We think that making the Twist project open source will allow anyone to use cert
   
 ## ⁉️ FAQ :
 
-- Q : Can I copy Twist?
-- R : No you cannot copy Twist, but on the other hand you can all take our php logic or the style of the site (All modify the code anyway)
+- Q : Can I copy Twist? \
+  R : No you cannot copy Twist, but on the other hand you can all take our php logic or the style of the site (All modify the code anyway)
 
-- Q : Can I contribute
-- R : Yes you can contribute to Twist projects, and in addition you will have advantages if we validate your contribution ([Contribute Page](https://github.com/MazeGroup-Corp/twist/blob/main/contributors.md)) :
+- Q : Can I contribute \
+  R : Yes you can contribute to Twist projects, and in addition you will have advantages if we validate your contribution ([Contribute Page](https://github.com/MazeGroup-Corp/twist/blob/main/contributors.md)) :
   - VIP rank on Twist
   - Name in the contributors page (Github and Twist)
