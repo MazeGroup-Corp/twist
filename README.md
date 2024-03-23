@@ -9,7 +9,7 @@ Twist is a website which aims to have the same functionalities of modern social 
 We think that making the Twist project open source will allow anyone to use certain systems (such as connection, posts, etc.) in their website or use CSS for their website. 
 
 > [!NOTE]
-> All the same we reminds you that the website is licensed [CreativeCommons](https://creativecommons.org/licenses/by-nd/4.0/?ref=chooser-v1) and that the github is licensed [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0) so please don't copy paste!
+> All the same we reminds you that the website and this github is licensed [CreativeCommons](https://creativecommons.org/licenses/by-nd/4.0/?ref=chooser-v1) so if you copy some parts or all please credit us (and make sure it is visible enough)
 
  ## 👱 Authors :
 
@@ -31,10 +31,9 @@ We think that making the Twist project open source will allow anyone to use cert
 ## ⁉️ FAQ :
 
 - Q : Can I copy Twist?
-  
-  R : No you cannot copy Twist, but on the other hand you can all take our php logic or the style of the site (All modify the code anyway)
+- R : No you cannot copy Twist, but on the other hand you can all take our php logic or the style of the site (All modify the code anyway)
+
 - Q : Can I contribute
-  
-  R : Yes you can contribute to Twist projects, and in addition you will have advantages if we validate your contribution:
+- R : Yes you can contribute to Twist projects, and in addition you will have advantages if we validate your contribution ([Contribute Page](https://github.com/MazeGroup-Corp/twist/blob/main/contributors.md)) :
   - VIP rank on Twist
   - Name in the contributors page (Github and Twist)
